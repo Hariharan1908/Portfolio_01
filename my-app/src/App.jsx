@@ -5,9 +5,13 @@ import emailjs from "@emailjs/browser";
 //  EmailJS config  →  replace these 3 values after setup
 //  Guide: see README section "EmailJS Setup (5 min)"
 // ─────────────────────────────────────────────────────────
-const EJS_SERVICE_ID  = "YOUR_SERVICE_ID";   // e.g. "service_abc123"
-const EJS_TEMPLATE_ID = "YOUR_TEMPLATE_ID";  // e.g. "template_xyz789"
-const EJS_PUBLIC_KEY  = "YOUR_PUBLIC_KEY";   // e.g. "aBcDeFgHiJkLmNoP"
+// const EJS_SERVICE_ID  = "YOUR_SERVICE_ID";   // e.g. "service_abc123"
+// const EJS_TEMPLATE_ID = "YOUR_TEMPLATE_ID";  // e.g. "template_xyz789"
+// const EJS_PUBLIC_KEY  = "YOUR_PUBLIC_KEY";   // e.g. "aBcDeFgHiJkLmNoP"
+
+const EJS_SERVICE_ID = "service_ns66bdr";
+const EJS_TEMPLATE_ID = "template_dxhsnrl";
+const EJS_PUBLIC_KEY = "9Tom_kyWO2FxfWu4G";
 
 const NAV_LINKS = ["About", "Skills", "Projects", "Experience", "Contact"];
 
