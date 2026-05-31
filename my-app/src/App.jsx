@@ -2,24 +2,20 @@ import { useState, useEffect, useRef } from "react";
 import emailjs from "@emailjs/browser";
 
 // ─────────────────────────────────────────────────────────
-//  EmailJS config  →  replace these 3 values after setup
-//  Guide: see README section "EmailJS Setup (5 min)"
+//  EmailJS config — replace with your actual values
+//  Dashboard: https://dashboard.emailjs.com
 // ─────────────────────────────────────────────────────────
-// const EJS_SERVICE_ID  = "YOUR_SERVICE_ID";   // e.g. "service_abc123"
-// const EJS_TEMPLATE_ID = "YOUR_TEMPLATE_ID";  // e.g. "template_xyz789"
-// const EJS_PUBLIC_KEY  = "YOUR_PUBLIC_KEY";   // e.g. "aBcDeFgHiJkLmNoP"
-
-const EJS_SERVICE_ID = "service_ns66bdr";
+const EJS_SERVICE_ID  = "service_ns66bdr";
 const EJS_TEMPLATE_ID = "template_dxhsnrl";
-const EJS_PUBLIC_KEY = "9Tom_kyWO2FxfWu4G";
+const EJS_PUBLIC_KEY  = "9Tom_kyWO2FxfWu4G";
 
 const NAV_LINKS = ["About", "Skills", "Projects", "Experience", "Contact"];
 
 const SKILLS = [
   { category: "Frontend", items: ["React", "TypeScript", "Tailwind CSS", "Next.js"] },
-  { category: "Backend", items: ["Node.js", "Python", "Express", "PostgreSQL"] },
-  { category: "DevOps", items: ["AWS EC2", "Docker", "Nginx", "CI/CD"] },
-  { category: "Tools", items: ["Git", "Linux", "VS Code", "Figma"] },
+  { category: "Backend",  items: ["Node.js", "Python", "Express", "PostgreSQL"] },
+  { category: "DevOps",   items: ["AWS EC2", "Docker", "Nginx", "CI/CD"] },
+  { category: "Tools",    items: ["Git", "Linux", "VS Code", "Figma"] },
 ];
 
 const PROJECTS = [
@@ -49,7 +45,9 @@ const EXPERIENCE = [
     company: "Coronis IT Systems Pvt. Ltd",
     period: "2024 – 2025",
     points: [
-      "Designed, developed, and maintained scalable web applications using React.js and modern JavaScript frameworks. Collaborated closely with cross-functional teams to deliver responsive, high-performance user interfaces while integrating backend APIs and cloud-hosted services. Contributed to deployment workflows, version control management using Git, and application optimization to enhance user experience and system reliability.",
+      "Designed, developed, and maintained scalable web applications using React.js and modern JavaScript frameworks.",
+      "Collaborated with cross-functional teams to deliver responsive, high-performance UIs while integrating backend APIs and cloud-hosted services.",
+      "Contributed to deployment workflows, Git-based version control, and application optimization to enhance UX and system reliability.",
     ],
   },
   {
@@ -63,6 +61,7 @@ const EXPERIENCE = [
   },
 ];
 
+// ── Intersection-observer hook ──────────────────────────
 function useInView(threshold = 0.1) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
@@ -77,6 +76,7 @@ function useInView(threshold = 0.1) {
   return [ref, visible];
 }
 
+// ── Animated section wrapper ────────────────────────────
 function Section({ id, children, className = "" }) {
   const [ref, visible] = useInView();
   return (
@@ -90,12 +90,13 @@ function Section({ id, children, className = "" }) {
   );
 }
 
+// ── Main app ────────────────────────────────────────────
 export default function App() {
-  const [active, setActive] = useState("About");
+  const [active,   setActive]   = useState("About");
   const [menuOpen, setMenuOpen] = useState(false);
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
-  const [formState, setFormState] = useState("idle"); // "idle" | "sending" | "sent" | "error"
-  const formRef = useRef(null);
+  // formState: "idle" | "sending" | "sent" | "error"
+  const [formState, setFormState] = useState("idle");
 
   // Close mobile menu on outside click
   useEffect(() => {
@@ -114,8 +115,8 @@ export default function App() {
       NAV_LINKS.forEach((link) => {
         const el = document.getElementById(link.toLowerCase());
         if (!el) return;
-        const rect = el.getBoundingClientRect();
-        if (rect.top <= 120 && rect.bottom >= 120) setActive(link);
+        const { top, bottom } = el.getBoundingClientRect();
+        if (top <= 120 && bottom >= 120) setActive(link);
       });
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -127,21 +128,34 @@ export default function App() {
     setMenuOpen(false);
   };
 
+  // Send email via EmailJS
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formState === "sending") return;
     setFormState("sending");
 
     try {
+      // Build a timestamp in IST
+      const now = new Date().toLocaleString("en-IN", {
+        timeZone: "Asia/Kolkata",
+        dateStyle: "medium",
+        timeStyle: "short",
+      });
+
       await emailjs.send(
         EJS_SERVICE_ID,
         EJS_TEMPLATE_ID,
         {
-          from_name:    formData.name,
-          from_email:   formData.email,
-          message:      formData.message,
-          to_email:     "harishps1219@gmail.com",
-          reply_to:     formData.email,
+          // Primary keys — match your EmailJS template exactly
+          name:       formData.name,
+          email:      formData.email,
+          message:    formData.message,
+          time:       now,
+          // Aliases — covered in case template uses these names too
+          from_name:  formData.name,
+          from_email: formData.email,
+          reply_to:   formData.email,
+          to_email:   "harishps1219@gmail.com",
         },
         EJS_PUBLIC_KEY
       );
@@ -211,14 +225,13 @@ export default function App() {
         .nav-links button {
           background: none; border: none; cursor: pointer;
           color: var(--muted);
-          font-family: var(--body);
-          font-size: 0.85rem;
+          font-family: var(--body); font-size: 0.85rem;
           padding: 0.4rem 0.75rem;
           border-radius: 999px;
           transition: color 0.2s, background 0.2s;
           white-space: nowrap;
         }
-        .nav-links button:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+        .nav-links button:hover      { color: var(--text); background: rgba(255,255,255,0.05); }
         .nav-links button.nav-active { color: var(--text); background: rgba(108,99,255,0.15); }
 
         /* ── HAMBURGER ── */
@@ -251,18 +264,14 @@ export default function App() {
         }
         .mobile-menu button {
           background: none; border: none;
-          color: var(--text);
-          font-size: 0.95rem;
+          color: var(--text); font-size: 0.95rem;
           padding: 0.65rem 1rem;
           text-align: left; cursor: pointer;
           border-radius: 8px;
           transition: background 0.15s;
         }
-        .mobile-menu button:hover { background: rgba(255,255,255,0.05); }
-        .mobile-menu button.mob-active {
-          color: var(--accent);
-          background: rgba(108,99,255,0.1);
-        }
+        .mobile-menu button:hover      { background: rgba(255,255,255,0.05); }
+        .mobile-menu button.mob-active { color: var(--accent); background: rgba(108,99,255,0.1); }
 
         /* ── SECTIONS ── */
         .section {
@@ -287,14 +296,11 @@ export default function App() {
           margin-bottom: 1rem;
         }
 
-        /* ── BLOBS (decorative, hidden on small screens) ── */
+        /* ── BLOBS ── */
         .blob {
-          position: fixed;
-          border-radius: 50%;
-          filter: blur(80px);
-          opacity: 0.13;
-          pointer-events: none;
-          z-index: -1;
+          position: fixed; border-radius: 50%;
+          filter: blur(80px); opacity: 0.13;
+          pointer-events: none; z-index: -1;
         }
         .blob1 { width: 520px; height: 520px; background: var(--accent); top: -10%; left: -15%; }
         .blob2 { width: 360px; height: 360px; background: var(--accent2); bottom: 5%; right: -10%; }
@@ -311,10 +317,10 @@ export default function App() {
           grid-template-columns: 1fr 1fr;
           gap: clamp(2rem, 5vw, 4rem);
           align-items: center;
-          max-width: 1100px;
-          width: 100%;
+          max-width: 1100px; width: 100%;
         }
-        .hero-text { order: 1; }
+        .hero-text  { order: 1; }
+        .hero-avatar { order: 2; display: flex; justify-content: center; align-items: center; }
         .hero-name {
           font-size: clamp(2.2rem, 6vw, 5rem);
           font-weight: 800;
@@ -326,8 +332,7 @@ export default function App() {
           font-size: clamp(0.92rem, 1.5vw, 1.15rem);
           color: var(--muted);
           margin: 1.1rem 0 1.75rem;
-          max-width: 440px;
-          line-height: 1.65;
+          max-width: 440px; line-height: 1.65;
         }
         .btn-group { display: flex; gap: 0.65rem; flex-wrap: wrap; }
         .btn {
@@ -335,26 +340,28 @@ export default function App() {
           padding: 0.6rem 1.3rem;
           border-radius: 999px;
           font-size: 0.875rem; font-weight: 500;
-          cursor: pointer;
-          transition: all 0.22s;
+          cursor: pointer; transition: all 0.22s;
           text-decoration: none; border: none;
           -webkit-tap-highlight-color: transparent;
           touch-action: manipulation;
         }
+        .btn:disabled { cursor: not-allowed; }
         .btn-primary { background: var(--accent); color: #fff; }
-        .btn-primary:hover { background: #5a52e0; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(108,99,255,0.35); }
+        .btn-primary:hover:not(:disabled) {
+          background: #5a52e0;
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(108,99,255,0.35);
+        }
         .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
         .btn-outline:hover { background: rgba(255,255,255,0.05); transform: translateY(-2px); }
 
-        /* Avatar */
-        .hero-avatar { order: 2; display: flex; justify-content: center; align-items: center; }
+        /* ── AVATAR ── */
         .avatar-ring {
           width: clamp(150px, 28vw, 300px);
           height: clamp(150px, 28vw, 300px);
           border-radius: 50%;
           background: linear-gradient(135deg, var(--accent), var(--accent2));
-          padding: 3px;
-          flex-shrink: 0;
+          padding: 3px; flex-shrink: 0;
         }
         .avatar-inner {
           width: 100%; height: 100%;
@@ -363,16 +370,13 @@ export default function App() {
           display: flex; align-items: center; justify-content: center;
           font-family: var(--heading);
           font-size: clamp(2rem, 5vw, 4.5rem);
-          font-weight: 800;
-          color: var(--accent);
+          font-weight: 800; color: var(--accent);
           overflow: hidden;
         }
         .avatar-inner img {
           width: 100%; height: 100%;
-          object-fit: cover;
-          object-position: center top;
-          border-radius: 50%;
-          display: block;
+          object-fit: cover; object-position: center top;
+          border-radius: 50%; display: block;
         }
 
         /* ── SKILLS ── */
@@ -380,45 +384,37 @@ export default function App() {
         .skills-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-          gap: 1rem;
-          margin-top: 2rem;
+          gap: 1rem; margin-top: 2rem;
         }
         .skill-card {
           background: var(--card);
           border: 1px solid var(--border);
-          border-radius: 14px;
-          padding: 1.25rem;
+          border-radius: 14px; padding: 1.25rem;
           transition: border-color 0.25s, transform 0.25s;
         }
         .skill-card:hover { border-color: var(--accent); transform: translateY(-4px); }
         .skill-cat {
-          font-size: 0.68rem;
-          letter-spacing: 0.18em;
-          text-transform: uppercase;
-          color: var(--accent2);
+          font-size: 0.68rem; letter-spacing: 0.18em;
+          text-transform: uppercase; color: var(--accent2);
           margin-bottom: 0.85rem;
         }
         .skill-tags { display: flex; flex-wrap: wrap; gap: 0.45rem; }
         .tag {
-          font-size: 0.78rem;
-          padding: 0.28rem 0.7rem;
+          font-size: 0.78rem; padding: 0.28rem 0.7rem;
           border-radius: 999px;
-          background: rgba(255,255,255,0.06);
-          color: var(--text);
+          background: rgba(255,255,255,0.06); color: var(--text);
         }
 
         /* ── PROJECTS ── */
         .projects-grid {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-          gap: 1.25rem;
-          margin-top: 2rem;
+          gap: 1.25rem; margin-top: 2rem;
         }
         .project-card {
           background: var(--card);
           border: 1px solid var(--border);
-          border-radius: 16px;
-          padding: 1.5rem;
+          border-radius: 16px; padding: 1.5rem;
           position: relative; overflow: hidden;
           transition: transform 0.25s, box-shadow 0.25s;
           display: flex; flex-direction: column;
@@ -430,18 +426,12 @@ export default function App() {
         }
         .project-card:hover { transform: translateY(-5px); box-shadow: 0 18px 44px rgba(0,0,0,0.4); }
         .project-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.55rem; }
-        .project-card p {
-          font-size: 0.865rem; color: var(--muted);
-          line-height: 1.65; margin-bottom: 1.1rem;
-          flex: 1;
-        }
-        .project-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+        .project-card p  { font-size: 0.865rem; color: var(--muted); line-height: 1.65; margin-bottom: 1.1rem; flex: 1; }
+        .project-tags    { display: flex; flex-wrap: wrap; gap: 0.35rem; }
         .project-tag {
-          font-size: 0.7rem;
-          padding: 0.18rem 0.55rem;
+          font-size: 0.7rem; padding: 0.18rem 0.55rem;
           border-radius: 999px;
-          border: 1px solid var(--border);
-          color: var(--muted);
+          border: 1px solid var(--border); color: var(--muted);
         }
 
         /* ── EXPERIENCE ── */
@@ -455,22 +445,17 @@ export default function App() {
         .timeline-item { padding-left: 1.75rem; margin-bottom: 2.25rem; position: relative; }
         .timeline-dot {
           position: absolute; left: -5px; top: 6px;
-          width: 11px; height: 11px;
-          border-radius: 50%;
+          width: 11px; height: 11px; border-radius: 50%;
           background: var(--accent);
           box-shadow: 0 0 10px rgba(108,99,255,0.6);
         }
-        .timeline-period {
-          font-size: 0.72rem; letter-spacing: 0.1em;
-          color: var(--accent); margin-bottom: 0.3rem;
-        }
-        .timeline-role { font-family: var(--heading); font-size: 1.1rem; font-weight: 700; }
+        .timeline-period { font-size: 0.72rem; letter-spacing: 0.1em; color: var(--accent); margin-bottom: 0.3rem; }
+        .timeline-role    { font-family: var(--heading); font-size: 1.1rem; font-weight: 700; }
         .timeline-company { font-size: 0.865rem; color: var(--muted); margin-bottom: 0.65rem; }
-        .timeline-points { list-style: none; }
+        .timeline-points  { list-style: none; }
         .timeline-points li {
           font-size: 0.865rem; color: var(--muted);
-          padding: 0.18rem 0 0.18rem 1rem;
-          position: relative;
+          padding: 0.18rem 0 0.18rem 1rem; position: relative;
         }
         .timeline-points li::before { content: '→'; position: absolute; left: 0; color: var(--accent2); }
 
@@ -480,22 +465,22 @@ export default function App() {
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: clamp(2rem, 5vw, 4rem);
-          align-items: start;
-          margin-top: 2rem;
+          align-items: start; margin-top: 2rem;
         }
-        .contact-info h3 { font-size: 1.4rem; margin-bottom: 0.65rem; }
-        .contact-info p { color: var(--muted); font-size: 0.88rem; line-height: 1.7; }
-        .social-links { display: flex; flex-direction: column; gap: 0.55rem; margin-top: 1.35rem; }
+        .contact-info h3  { font-size: 1.4rem; margin-bottom: 0.65rem; }
+        .contact-info p   { color: var(--muted); font-size: 0.88rem; line-height: 1.7; }
+        .social-links     { display: flex; flex-direction: column; gap: 0.55rem; margin-top: 1.35rem; }
         .social-link {
           display: flex; align-items: center; gap: 0.55rem;
           font-size: 0.85rem; color: var(--muted);
-          text-decoration: none;
-          transition: color 0.2s;
+          text-decoration: none; transition: color 0.2s;
           word-break: break-all;
         }
         .social-link:hover { color: var(--accent); }
+
+        /* ── CONTACT FORM ── */
         .contact-form { display: flex; flex-direction: column; gap: 0.9rem; }
-        .form-group { display: flex; flex-direction: column; gap: 0.35rem; }
+        .form-group   { display: flex; flex-direction: column; gap: 0.35rem; }
         .form-group label {
           font-size: 0.72rem; letter-spacing: 0.1em;
           text-transform: uppercase; color: var(--muted);
@@ -507,20 +492,28 @@ export default function App() {
           border-radius: 10px;
           padding: 0.7rem 0.9rem;
           color: var(--text); font-size: 0.9rem;
-          outline: none;
-          transition: border-color 0.2s;
-          resize: vertical;
-          width: 100%;
+          outline: none; transition: border-color 0.2s;
+          resize: vertical; width: 100%;
           -webkit-appearance: none;
         }
         .form-group input:focus,
         .form-group textarea:focus { border-color: var(--accent); }
-        .success-msg {
-          background: rgba(0,191,166,0.1);
-          border: 1px solid rgba(0,191,166,0.3);
+
+        /* feedback banners */
+        .form-banner {
           border-radius: 10px;
           padding: 0.7rem 0.9rem;
-          color: var(--accent2); font-size: 0.875rem; text-align: center;
+          font-size: 0.875rem; text-align: center;
+        }
+        .form-banner.success {
+          background: rgba(0,191,166,0.1);
+          border: 1px solid rgba(0,191,166,0.3);
+          color: var(--accent2);
+        }
+        .form-banner.error {
+          background: rgba(255,107,107,0.1);
+          border: 1px solid rgba(255,107,107,0.3);
+          color: #ff6b6b;
         }
 
         /* ── FOOTER ── */
@@ -537,106 +530,75 @@ export default function App() {
         ════════════════════════════════════ */
         @media (max-width: 900px) {
           :root { --px: clamp(1.25rem, 5vw, 3rem); }
-
-          /* Stack hero two-column → single, avatar goes top */
-          .hero-grid { grid-template-columns: 1fr; }
-          .hero-text { order: 2; text-align: center; }
-          .hero-avatar { order: 1; }
-          .hero-tagline { margin-left: auto; margin-right: auto; }
-          .btn-group { justify-content: center; }
-
-          /* Contact side-by-side → stack */
-          .contact-wrap { grid-template-columns: 1fr; }
-
-          /* Skills grid: 2 cols on tablet */
-          .skills-grid { grid-template-columns: repeat(2, 1fr); }
-
-          /* Projects: 1 col on tablet */
-          .projects-grid { grid-template-columns: 1fr; }
-
-          /* Hide desktop nav links, show hamburger */
-          .nav-links { display: none; }
-          .hamburger { display: flex; }
+          .hero-grid      { grid-template-columns: 1fr; }
+          .hero-text      { order: 2; text-align: center; }
+          .hero-avatar    { order: 1; }
+          .hero-tagline   { margin-left: auto; margin-right: auto; }
+          .btn-group      { justify-content: center; }
+          .contact-wrap   { grid-template-columns: 1fr; }
+          .skills-grid    { grid-template-columns: repeat(2, 1fr); }
+          .projects-grid  { grid-template-columns: 1fr; }
+          .nav-links      { display: none; }
+          .hamburger      { display: flex; }
         }
 
         /* ════════════════════════════════════
            RESPONSIVE — MOBILE  (≤ 540px)
         ════════════════════════════════════ */
         @media (max-width: 540px) {
-          :root {
-            --px: 1.1rem;
-            --nav-h: 56px;
-          }
-
-          /* Tighter section padding on small phones */
-          .section { padding-top: clamp(3.5rem, 8vw, 5rem); padding-bottom: clamp(3rem, 8vw, 5rem); }
-          #about { padding-top: calc(var(--nav-h) + 2rem); }
-
-          /* Smaller hero text on phones */
-          .hero-name { font-size: clamp(2rem, 11vw, 2.8rem); }
-          h2 { font-size: clamp(1.5rem, 7vw, 2.2rem); }
-
-          /* Avatar smaller on phones */
-          .avatar-ring { width: clamp(110px, 38vw, 170px); height: clamp(110px, 38vw, 170px); }
-
-          /* Buttons stack on very small screens */
-          .btn-group { flex-direction: column; align-items: center; }
-          .btn { width: 100%; max-width: 240px; justify-content: center; }
-
-          /* Skills: 1 column on phones */
-          .skills-grid { grid-template-columns: 1fr; }
-
-          /* Timeline narrower indentation */
+          :root { --px: 1.1rem; --nav-h: 56px; }
+          .section       { padding-top: clamp(3.5rem, 8vw, 5rem); padding-bottom: clamp(3rem, 8vw, 5rem); }
+          #about         { padding-top: calc(var(--nav-h) + 2rem); }
+          .hero-name     { font-size: clamp(2rem, 11vw, 2.8rem); }
+          h2             { font-size: clamp(1.5rem, 7vw, 2.2rem); }
+          .avatar-ring   { width: clamp(110px, 38vw, 170px); height: clamp(110px, 38vw, 170px); }
+          .btn-group     { flex-direction: column; align-items: center; }
+          .btn           { width: 100%; max-width: 240px; justify-content: center; }
+          .skills-grid   { grid-template-columns: 1fr; }
           .timeline-item { padding-left: 1.4rem; }
-
-          /* Social links no word break on very small */
-          .social-link { font-size: 0.78rem; }
-
-          /* Footer stacks */
-          footer { flex-direction: column; align-items: flex-start; gap: 0.4rem; }
-
-          /* Blobs hidden (paint saving + avoids overflow) */
-          .blob { display: none; }
+          .social-link   { font-size: 0.78rem; }
+          footer         { flex-direction: column; align-items: flex-start; gap: 0.4rem; }
+          .blob          { display: none; }
         }
 
         /* ════════════════════════════════════
            RESPONSIVE — LANDSCAPE PHONES
         ════════════════════════════════════ */
         @media (max-width: 812px) and (orientation: landscape) {
-          #about { min-height: auto; padding-top: calc(var(--nav-h) + 1.5rem); padding-bottom: 3rem; }
-          .hero-grid { grid-template-columns: 1fr 1fr; }
-          .hero-text { order: 1; text-align: left; }
-          .hero-avatar { order: 2; }
-          .btn-group { justify-content: flex-start; }
+          #about        { min-height: auto; padding-top: calc(var(--nav-h) + 1.5rem); padding-bottom: 3rem; }
+          .hero-grid    { grid-template-columns: 1fr 1fr; }
+          .hero-text    { order: 1; text-align: left; }
+          .hero-avatar  { order: 2; }
+          .btn-group    { justify-content: flex-start; }
           .hero-tagline { margin-left: 0; }
         }
 
         /* ════════════════════════════════════
-           TOUCH / ACCESSIBILITY
+           TOUCH + ACCESSIBILITY
         ════════════════════════════════════ */
         @media (hover: none) {
-          /* Disable hover lift on touch devices to prevent stuck states */
           .skill-card:hover,
           .project-card:hover,
           .btn-primary:hover,
           .btn-outline:hover { transform: none; box-shadow: none; }
         }
-
-        /* Reduce motion */
         @media (prefers-reduced-motion: reduce) {
           .section { transition: none; opacity: 1; transform: none; }
-          .btn { transition: none; }
+          .btn     { transition: none; }
           @keyframes slideDown { from { opacity: 1; transform: none; } }
         }
       `}</style>
 
-      {/* NAV */}
+      {/* ── NAV ── */}
       <nav>
         <div className="logo">Hariharan<span>.</span>palanivel</div>
         <ul className="nav-links">
           {NAV_LINKS.map((l) => (
             <li key={l}>
-              <button className={active === l ? "nav-active" : ""} onClick={() => scrollTo(l)}>
+              <button
+                className={active === l ? "nav-active" : ""}
+                onClick={() => scrollTo(l)}
+              >
                 {l}
               </button>
             </li>
@@ -666,7 +628,7 @@ export default function App() {
         </div>
       )}
 
-      {/* BLOBS */}
+      {/* ── DECORATIVE BLOBS ── */}
       <div className="blob blob1" aria-hidden="true" />
       <div className="blob blob2" aria-hidden="true" />
 
@@ -681,12 +643,12 @@ export default function App() {
                   alt="Hariharan Palanivel"
                   onError={(e) => {
                     e.target.style.display = "none";
-                    e.target.parentNode.dataset.fallback = "HP";
-                    e.target.parentNode.style.fontSize = "clamp(2rem, 5vw, 4.5rem)";
-                    e.target.parentNode.style.fontWeight = "800";
-                    e.target.parentNode.style.color = "var(--accent)";
-                    e.target.parentNode.style.fontFamily = "var(--heading)";
-                    e.target.parentNode.textContent = "HP";
+                    const p = e.target.parentNode;
+                    p.style.fontSize    = "clamp(2rem, 5vw, 4.5rem)";
+                    p.style.fontWeight  = "800";
+                    p.style.color       = "var(--accent)";
+                    p.style.fontFamily  = "var(--heading)";
+                    p.textContent       = "HP";
                   }}
                 />
               </div>
@@ -698,11 +660,16 @@ export default function App() {
               Hariharan<br /><span className="line2">Palanivel</span>
             </h1>
             <p className="hero-tagline">
-              Full-Stack Engineer &amp; DevOps enthusiast building scalable products deployed on AWS — from concept to production.
+              Full-Stack Engineer &amp; DevOps enthusiast building scalable
+              products deployed on AWS — from concept to production.
             </p>
             <div className="btn-group">
-              <button className="btn btn-primary" onClick={() => scrollTo("Projects")}>View Projects</button>
-              <button className="btn btn-outline" onClick={() => scrollTo("Contact")}>Hire Me</button>
+              <button className="btn btn-primary" onClick={() => scrollTo("Projects")}>
+                View Projects
+              </button>
+              <button className="btn btn-outline" onClick={() => scrollTo("Contact")}>
+                Hire Me
+              </button>
             </div>
           </div>
         </div>
@@ -730,11 +697,7 @@ export default function App() {
         <h2>Projects</h2>
         <div className="projects-grid">
           {PROJECTS.map((p, i) => (
-            <div
-              className="project-card"
-              key={p.title}
-              style={{ "--accent-color": p.accent }}
-            >
+            <div className="project-card" key={p.title}>
               <style>{`.project-card:nth-child(${i + 1})::before { background: ${p.accent}; }`}</style>
               <h3>{p.title}</h3>
               <p>{p.desc}</p>
@@ -751,14 +714,14 @@ export default function App() {
         <p className="section-label">Where I've worked</p>
         <h2>Experience</h2>
         <div className="timeline">
-          {EXPERIENCE.map((e) => (
-            <div className="timeline-item" key={e.company}>
+          {EXPERIENCE.map((exp) => (
+            <div className="timeline-item" key={exp.company}>
               <div className="timeline-dot" aria-hidden="true" />
-              <p className="timeline-period">{e.period}</p>
-              <p className="timeline-role">{e.role}</p>
-              <p className="timeline-company">{e.company}</p>
+              <p className="timeline-period">{exp.period}</p>
+              <p className="timeline-role">{exp.role}</p>
+              <p className="timeline-company">{exp.company}</p>
               <ul className="timeline-points">
-                {e.points.map((pt) => <li key={pt}>{pt}</li>)}
+                {exp.points.map((pt) => <li key={pt}>{pt}</li>)}
               </ul>
             </div>
           ))}
@@ -770,11 +733,14 @@ export default function App() {
         <p className="section-label">Let's connect</p>
         <h2>Get In Touch</h2>
         <div className="contact-wrap">
+
+          {/* Left — info */}
           <div className="contact-info">
             <h3>Open to work</h3>
             <p>
               I'm currently open to full-time roles and freelance projects.
-              If you have something in mind, drop me a message and I'll get back within 24 hours.
+              If you have something in mind, drop me a message and I'll get
+              back within 24 hours.
             </p>
             <div className="social-links">
               <a className="social-link" href="mailto:hariharanp1912@gmail.com">
@@ -792,145 +758,72 @@ export default function App() {
             </div>
           </div>
 
+          {/* Right — form (single, clean, no nesting) */}
           <form className="contact-form" onSubmit={handleSubmit} noValidate>
-            {/* {sent && <p className="success-msg" role="status">✅ Message sent! I'll reply soon.</p>} */}
-            {/* {formState === "sent" && (<p className="success-msg" role="status">✅ Message sent! I'll reply soon.</p>
-)} */}
 
-              <form className="contact-form" onSubmit={handleSubmit} noValidate>
+            {formState === "sent" && (
+              <p className="form-banner success" role="status">
+                ✅ Message sent! I'll reply soon.
+              </p>
+            )}
+            {formState === "error" && (
+              <p className="form-banner error" role="alert">
+                ❌ Failed to send. Please try again or email me directly.
+              </p>
+            )}
 
-  {formState === "sent" && (
-    <p className="success-msg" role="status">
-      ✅ Message sent! I'll reply soon.
-    </p>
-  )}
-
-  {formState === "error" && (
-    <p
-      className="success-msg"
-      role="alert"
-      style={{
-        color: "#ff6b6b",
-        borderColor: "#ff6b6b",
-        background: "rgba(255,107,107,0.1)"
-      }}
-    >
-      ❌ Failed to send message. Please try again.
-    </p>
-  )}
-
-  <div className="form-group">
-    <label htmlFor="name">Name</label>
-    <input
-      id="name"
-      value={formData.name}
-      onChange={(e) =>
-        setFormData({ ...formData, name: e.target.value })
-      }
-      placeholder="Your name"
-      required
-      autoComplete="name"
-    />
-  </div>
-
-  <div className="form-group">
-    <label htmlFor="email">Email</label>
-    <input
-      id="email"
-      type="email"
-      value={formData.email}
-      onChange={(e) =>
-        setFormData({ ...formData, email: e.target.value })
-      }
-      placeholder="you@example.com"
-      required
-      autoComplete="email"
-    />
-  </div>
-
-  <div className="form-group">
-    <label htmlFor="message">Message</label>
-    <textarea
-      id="message"
-      rows={4}
-      value={formData.message}
-      onChange={(e) =>
-        setFormData({ ...formData, message: e.target.value })
-      }
-      placeholder="Tell me about your project..."
-      required
-    />
-  </div>
-
-  <button
-    type="submit"
-    className="btn btn-primary"
-    disabled={formState === "sending"}
-    style={{
-      alignSelf: "flex-start",
-      opacity: formState === "sending" ? 0.7 : 1
-    }}
-  >
-    {formState === "sending"
-      ? "Sending..."
-      : "Send Message →"}
-  </button>
-
-</form>
-
-
-            {/* <div className="form-group">
-              <label htmlFor="name">Name</label>
+            <div className="form-group">
+              <label htmlFor="cf-name">Name</label>
               <input
-                id="name"
+                id="cf-name"
                 value={formData.name}
-                onChange={e => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="Your name"
                 required
                 autoComplete="name"
+                disabled={formState === "sending"}
               />
             </div>
+
             <div className="form-group">
-              <label htmlFor="email">Email</label>
+              <label htmlFor="cf-email">Email</label>
               <input
-                id="email"
+                id="cf-email"
                 type="email"
                 value={formData.email}
-                onChange={e => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 placeholder="you@example.com"
                 required
                 autoComplete="email"
                 inputMode="email"
+                disabled={formState === "sending"}
               />
             </div>
+
             <div className="form-group">
-              <label htmlFor="message">Message</label>
+              <label htmlFor="cf-message">Message</label>
               <textarea
-                id="message"
+                id="cf-message"
                 rows={4}
                 value={formData.message}
-                onChange={e => setFormData({ ...formData, message: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                 placeholder="Tell me about your project..."
                 required
-              />  
-            </div> */}
-            {/* <button
+                disabled={formState === "sending"}
+              />
+            </div>
+
+            <button
               type="submit"
               className="btn btn-primary"
-              style={{ alignSelf: "flex-start" }}
+              disabled={formState === "sending"}
+              style={{
+                alignSelf: "flex-start",
+                opacity: formState === "sending" ? 0.65 : 1,
+              }}
             >
-              Send Message →
-            </button> */}
-            {/* <button
-                type="submit"
-                className="btn btn-primary"
-                disabled={formState === "sending"}
-                style={{ alignSelf: "flex-start" }}
-            >
-                {formState === "sending"
-                ? "Sending..."
-                : "Send Message →"}
-            </button> */}
+              {formState === "sending" ? "Sending…" : "Send Message →"}
+            </button>
 
           </form>
         </div>
