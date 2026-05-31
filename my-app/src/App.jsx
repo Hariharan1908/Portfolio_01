@@ -45,20 +45,19 @@ const PROJECTS = [
 
 const EXPERIENCE = [
   {
-    role: "Full Stack Engineer",
-    company: "TechCorp Inc.",
-    period: "2022 – Present",
+    role: "Frontend Developer",
+    company: "Coronis IT Systems Pvt. Ltd",
+    period: "2024 – 2025",
     points: [
-      "Led migration of monolith to microservices on AWS.",
-      "Reduced deployment time by 70% via CI/CD pipelines.",
+      "Designed, developed, and maintained scalable web applications using React.js and modern JavaScript frameworks. Collaborated closely with cross-functional teams to deliver responsive, high-performance user interfaces while integrating backend APIs and cloud-hosted services. Contributed to deployment workflows, version control management using Git, and application optimization to enhance user experience and system reliability.",
     ],
   },
   {
-    role: "Frontend Developer",
-    company: "StartupXYZ",
-    period: "2020 – 2022",
+    role: "Frontend Developer Intern",
+    company: "Kaashiv Infotech",
+    period: "2021 – 2022",
     points: [
-      "Built React component library used across 5 products.",
+      "Built React component library used across 3 products.",
       "Improved Lighthouse score from 62 → 96.",
     ],
   },
@@ -932,7 +931,6 @@ export default function App() {
                 ? "Sending..."
                 : "Send Message →"}
             </button> */}
-
 
           </form>
         </div>
